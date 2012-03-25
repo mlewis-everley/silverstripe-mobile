@@ -22,8 +22,10 @@ class MobileSiteControllerExtension extends Extension {
 	/**
 	 * Override the default behavior to ensure that if this is a mobile device
 	 * or if they are on the configured mobile domain then they receive the mobile site.
+         * 
+         * Changed to onBeforeInit so the isMobile() method is available on Page_Controller
 	 */
-	public function onAfterInit() {
+	public function onBeforeInit() {
 		self::$is_mobile = false;
 		$config = SiteConfig::current_site_config();
 		$request = $this->owner->getRequest();
@@ -53,6 +55,7 @@ class MobileSiteControllerExtension extends Extension {
 			$fullSiteCookie = Cookie::get('fullSite');
 		}
 		
+
 		if(is_numeric($fullSiteCookie)) {
 			// Full site requested
 			if($fullSiteCookie) {
