@@ -22,8 +22,10 @@ class MobileSiteControllerExtension extends Extension {
 	/**
 	 * Override the default behavior to ensure that if this is a mobile device
 	 * or if they are on the configured mobile domain then they receive the mobile site.
+         * 
+         * Changed to onBeforeInit so the isMobile() method is available on Page_Controller
 	 */
-	public function onAfterInit() {
+	public function onBeforeInit() {
 		self::$is_mobile = false;
 		$config = SiteConfig::current_site_config();
 		$request = $this->owner->getRequest();
@@ -36,27 +38,12 @@ class MobileSiteControllerExtension extends Extension {
 		// Enforce the site (cookie expires in 30 minutes)
 		$fullSite = $request->getVar('fullSite');
 		if(is_numeric($fullSite)) {
-			Cookie::set('fullSite', (int)$fullSite);
-
-			// use the host of the desktop version of the site to set cross-(sub)domain cookie
-			if (!empty($config->FullSiteDomain)) {
-				$parsedURL = parse_url($config->FullSiteDomain);
-				if(!headers_sent($file, $line)) {
-					setcookie('fullSite', $fullSite, time() + self::$cookie_expire_time, null, '.' . $parsedURL['host']);
-				} else {
-					user_error(sprintf('Cookie \'fullSite\' can\'t be set. Output started at line %s in %s', $line, $file));
-				}
-			} else { // otherwise just use a normal cookie with the default domain
-				if(!headers_sent($file, $line)) {
-					setcookie('fullSite', $fullSite, time() + self::$cookie_expire_time);
-				} else {
-					user_error(sprintf('Cookie \'fullSite\' can\'t be set. Output started at line %s in %s', $line, $file));
-				}
-			}
+                        // Changed to session so the user doesn't have to reload the page after dropping the cookie
+			Session::set('fullSite', (int)$fullSite);
 		}
 
 		// Site is being forced via flag or cookie
-		$fullSiteCookie = Cookie::get('fullSite');
+		$fullSiteCookie = Session::get('fullSite');
 		if(is_numeric($fullSiteCookie)) {
 			// Full site requested
 			if($fullSiteCookie) {
