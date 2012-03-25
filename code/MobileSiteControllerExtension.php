@@ -45,6 +45,9 @@ class MobileSiteControllerExtension extends Extension {
 		// Site is being forced via flag or cookie
 		$fullSiteCookie = Session::get('fullSite');
 		if(is_numeric($fullSiteCookie)) {
+                    $fullSiteCookie->set_timeout(self::$cookie_expire_time);
+                    $fullSiteCookie->save();
+                    
 			// Full site requested
 			if($fullSiteCookie) {
 				if($this->onMobileDomain() && $config->MobileSiteType == 'RedirectToDomain') {
