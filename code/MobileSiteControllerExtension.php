@@ -45,7 +45,7 @@ class MobileSiteControllerExtension extends Extension {
 
 		// Site is being forced via flag or cookie
 		$fullSiteCookie = Session::get('fullSite');
-                
+
 		if(is_numeric($fullSiteCookie)) {
 			// Full site requested
 			if($fullSiteCookie) {
