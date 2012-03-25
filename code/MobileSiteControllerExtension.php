@@ -50,12 +50,11 @@ class MobileSiteControllerExtension extends Extension {
 			} else { // otherwise just use a normal cookie with the default domain
 				Cookie::set('fullSite', $fullSite, time() + self::$cookie_expire_time);
 			}
+		}
 
-		}
-		else {
-			$fullSiteCookie = Cookie::get('fullSite');
-		}
-		
+		// Site is being forced via flag or cookie
+		$fullSiteCookie = Session::get('fullSite');
+                
 		if(is_numeric($fullSiteCookie)) {
 			// Full site requested
 			if($fullSiteCookie) {
