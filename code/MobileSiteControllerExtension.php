@@ -57,9 +57,6 @@ class MobileSiteControllerExtension extends Extension {
 		
 
 		if(is_numeric($fullSiteCookie)) {
-                    $fullSiteCookie->set_timeout(self::$cookie_expire_time);
-                    $fullSiteCookie->save();
-                    
 			// Full site requested
 			if($fullSiteCookie) {
 				if($this->onMobileDomain() && $config->MobileSiteType == 'RedirectToDomain') {
