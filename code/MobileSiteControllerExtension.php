@@ -7,6 +7,22 @@
  */
 class MobileSiteControllerExtension extends Extension {
 
+    /**
+     * Instance of mobile detect class
+     * 
+     * @var Mobile_Detect()
+     */
+    private $mobile_detect;
+    
+    public function getMobileDetect() { 
+        return $this->mobile_detect;
+    }
+    
+    public function setMobileDetect($detector) {
+        $this->mobile_detect = $detector;
+        return $this;
+    } 
+
 	/**
 	 * The expiration time of a cookie set for full site requests
 	 * from the mobile site. Default is 30 minutes (1800 seconds)
@@ -20,17 +36,28 @@ class MobileSiteControllerExtension extends Extension {
 	private static $is_mobile = false;
 
 	/**
+	 * Stores state information as to which site is currently served.
+	 */
+	private static $is_tablet = false;
+
+	/**
 	 * Override the default behavior to ensure that if this is a mobile device
-	 * or if they are on the configured mobile domain then they receive the mobile site.
-         * 
-         * Changed to onBeforeInit so the isMobile() method is available on Page_Controller
+	 * or if they are on the configured mobile domain then they receive the
+	 * mobile site.
+     * 
+     * Changed to onBeforeInit so the isMobile() method is available on
+     * Page_Controller
 	 */
 	public function onBeforeInit() {
+	    // Set our mobile detector
+	    $this->owner->setMobileDetect(new Mobile_Detect());
+	
 		self::$is_mobile = false;
 		$config = SiteConfig::current_site_config();
 		$request = $this->owner->getRequest();
 		
-		// If we've accessed the homepage as /home/, then we redirect to / and don't want to double redirect here
+		// If we've accessed the homepage as /home/, then we redirect to / and
+		// don't want to double redirect here
 		if ($this->owner->redirectedTo()) {
 			return;
 		}
@@ -38,8 +65,9 @@ class MobileSiteControllerExtension extends Extension {
 		// Enforce the site (cookie expires in 30 minutes)
 		$fullSite = $request->getVar('fullSite');
 
+        // Changed to session so the user doesn't have to reload the page after
+        // dropping the cookie
 		if(is_numeric($fullSite)) {
-                        // Changed to session so the user doesn't have to reload the page after dropping the cookie
 			Session::set('fullSite', (int)$fullSite);
 		}
 
@@ -74,13 +102,13 @@ class MobileSiteControllerExtension extends Extension {
 		}
 
 		// User just wants to see a theme, but no redirect occurs
-		if(MobileBrowserDetector::is_mobile() && $config->MobileSiteType == 'MobileThemeOnly') {
+		if($this->mobile_detect->isMobile() && $config->MobileSiteType == 'MobileThemeOnly') {
 			SSViewer::set_theme($config->MobileTheme);
 			self::$is_mobile = true;
 		}
 
 		// If on a mobile device, but not on the mobile domain and has been setup for redirection
-		if(!$this->onMobileDomain() && MobileBrowserDetector::is_mobile() && $config->MobileSiteType == 'RedirectToDomain') {
+		if(!$this->onMobileDomain() && $this->mobile_detect->isMobile() && $config->MobileSiteType == 'RedirectToDomain') {
 			return $this->owner->redirect($config->MobileDomainNormalized, 301);
 		}
 	}
@@ -113,7 +141,7 @@ class MobileSiteControllerExtension extends Extension {
 			return ($fullSiteCookie == 0);
 		}
 		
-		return MobileBrowserDetector::is_mobile();
+		return $this->mobile_detect->isMobile();
 	}
 
 	/**
@@ -158,45 +186,4 @@ class MobileSiteControllerExtension extends Extension {
 	public function MobileSiteLink() {
 		return Controller::join_links($this->owner->Link(), '?fullSite=0');
 	}
-
-	/**
-	 * Is the current HTTP_USER_AGENT a known iPhone or iPod Touch
-	 * mobile agent string?
-	 * 
-	 * @return boolean
-	 */
-	public function IsiPhone() {
-		return MobileBrowserDetector::is_iphone();
-	}
-
-	/**
-	 * Is the current HTTP_USER_AGENT a known Android mobile
-	 * agent string?
-	 * 
-	 * @return boolean
-	 */
-	public function IsAndroid() {
-		return MobileBrowserDetector::is_android();
-	}
-
-	/**
-	 * Is the current HTTP_USER_AGENT a known Opera Mini
-	 * agent string?
-	 * 
-	 * @return boolean
-	 */
-	public function IsOperaMini() {
-		return MobileBrowserDetector::is_opera_mini();
-	}
-
-	/**
-	 * Is the current HTTP_USER_AGENT a known Blackberry
-	 * mobile agent string?
-	 * 
-	 * @return boolean
-	 */
-	public function IsBlackBerry() {
-		return MobileBrowserDetector::is_blackberry();
-	}
-
 }

@@ -36,7 +36,7 @@ class MobileSiteConfigExtension extends DataExtension {
 		'MobileDomain' => 'Text',
 		// Comma-separated list of non-mobile domains, without protocol
 		'FullSiteDomain' => 'Text',
-				'MobileTheme' => 'Varchar(255)',
+		'MobileTheme' => 'Varchar(255)',
 		'MobileSiteType' => 'Enum("Disabled,RedirectToDomain,MobileThemeOnly","Disabled")'
 	);
 
