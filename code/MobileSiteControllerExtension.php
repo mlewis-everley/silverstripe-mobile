@@ -60,8 +60,6 @@ class MobileSiteControllerExtension extends Extension {
 		// Enforce the site (cookie expires in 30 minutes)
 		$fullSite = $request->getVar('fullSite');
 
-        // Changed to session so the user doesn't have to reload the page after
-        // dropping the cookie
 		if(is_numeric($fullSite)) {
 			$fullSiteCookie = (int)$fullSite;
 			Cookie::set('fullSite', $fullSiteCookie);
@@ -75,10 +73,10 @@ class MobileSiteControllerExtension extends Extension {
 				Cookie::set('fullSite', $fullSite, time() + self::$cookie_expire_time);
 			}
 		}
-
-		// Site is being forced via flag or cookie
-		$fullSiteCookie = Session::get('fullSite');
-
+		else {
+			$fullSiteCookie = Cookie::get('fullSite');
+		}
+		
 		if(is_numeric($fullSiteCookie)) {
 			// Full site requested
 			if($fullSiteCookie) {
