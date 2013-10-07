@@ -31,20 +31,22 @@ class MobileSiteConfigExtension extends DataExtension {
 	/**
 	 * Extra statics variable to merge into {@link SiteConfig}
 	 */
-	static $db = array(
+	public static $db = array(
 		// Comma-separated list of mobile domains, without protocol
 		'MobileDomain' => 'Text',
 		// Comma-separated list of non-mobile domains, without protocol
 		'FullSiteDomain' => 'Text',
 		'MobileTheme' => 'Varchar(255)',
-		'MobileSiteType' => 'Enum("Disabled,RedirectToDomain,MobileThemeOnly","Disabled")'
+		'MobileSiteType' => 'Enum("Disabled,RedirectToDomain,MobileThemeOnly","Disabled")',
+		// Serve the obile theme to tablets or not
+		'ServeTablets' => 'Boolean'
 	);
 
 
 	static $defaults = array(
-				'MobileTheme' => 'blackcandymobile',
-				'MobileSiteType' => 'Disabled'
-		);
+			'MobileTheme' => 'blackcandymobile',
+			'MobileSiteType' => 'Disabled'
+	);
 
 	static function add_to_class($class, $extensionClass, $args = null) {
 		if($class == 'SiteConfig') {
@@ -52,7 +54,8 @@ class MobileSiteConfigExtension extends DataExtension {
 				'MobileDomain' => 'm.' . $_SERVER['HTTP_HOST'],
 				'FullSiteDomain' => $_SERVER['HTTP_HOST']
 			));
-	}
+	    }
+		
 		parent::add_to_class($class, $extensionClass, $args);
 	}
 	
@@ -163,7 +166,8 @@ class MobileSiteConfigExtension extends DataExtension {
 				TextField::create('MobileDomain', _t('MobileSiteConfig.MOBILEDOMAIN', 'Mobile domain <small>(e.g. m.mysite.com, needs to be different from "Full site domain")</small>')),
 				TextField::create('FullSiteDomain', _t('MobileSiteConfig.FULLSITEDOMAIN', 'Full site domain <small>(e.g. mysite.com, usually doesn\'t need to be changed)</small>')),
 				DropdownField::create('MobileTheme', _t('MobileSiteConfig.MOBILETHEME', 'Mobile theme'), $this->owner->getAvailableThemes())
-					->setEmptyString(_t('SiteConfig.DEFAULTTHEME', '(Use default theme)'))
+					->setEmptyString(_t('SiteConfig.DEFAULTTHEME', '(Use default theme)')),
+				CheckboxField::create('ServeTablets', _t('MobileSiteConfig.SERVETABLETS', 'Serve your mobile theme to tablet devices?'))
 			)
 		);
 	}
