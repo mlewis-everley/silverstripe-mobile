@@ -106,24 +106,26 @@ class MobileSiteControllerExtension extends Extension {
 		}
 
 		// User just wants to see a theme, but no redirect occurs
-		if(
-		    $this->owner->getMobileDetect()->isMobile() ||
-		    ($this->owner->getMobileDetect()->isTablet() && $config->ServeTablets) &&
-		    $config->MobileSiteType == 'MobileThemeOnly'
-	    ) {
-			SSViewer::set_theme($config->MobileTheme);
-			self::$is_mobile = true;
-		}
+        if(
+            (
+                $this->owner->getMobileDetect()->isMobile() ||
+                ($this->owner->getMobileDetect()->isTablet() && $config->ServeTablets)
+            ) && $config->MobileSiteType == 'MobileThemeOnly'
+        ) {
+            SSViewer::set_theme($config->MobileTheme);
+            self::$is_mobile = true;
+        }
 
-		// If on a mobile device, but not on the mobile domain and has been setup for redirection
-		if(
-		    !$this->onMobileDomain() &&
-		    $this->owner->getMobileDetect()->isMobile() ||
-		    ($this->owner->getMobileDetect()->isTablet() && $config->ServeTablets) &&
-		    $config->MobileSiteType == 'RedirectToDomain'
-	    ) {
-			return $this->owner->redirect($config->MobileDomainNormalized, 301);
-		}
+        // If on a mobile device, but not on the mobile domain and has been setup for redirection
+        if(
+            !$this->onMobileDomain() &&
+            (
+                $this->owner->getMobileDetect()->isMobile() ||
+                ($this->owner->getMobileDetect()->isTablet() && $config->ServeTablets)
+            ) && $config->MobileSiteType == 'RedirectToDomain'
+        ) {
+            return $this->owner->redirect($config->MobileDomainNormalized, 301);
+        }
 	}
 
 	/**
